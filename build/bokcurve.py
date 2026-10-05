@@ -62,8 +62,25 @@ def _latest(code: str, item: str, days: int = 30) -> tuple[str, float]:
     url = (f"{ECOS}/StatisticSearch/{_key()}/json/kr/1/100/{code}/D/"
            f"{start:%Y%m%d}/{end:%Y%m%d}/{item}")
     import json
+    import time
     body = json.loads(fetch.get(url))
     rows = body.get("StatisticSearch", {}).get("row", [])
+    if not rows:
+        # ECOS 는 탈이 나면 StatisticSearch 대신 RESULT 에 까닭을 담아 보낸다.
+        # 그 말을 그대로 올려야 무엇이 잘못됐는지 알 수 있다 — '값이 없다'
+        # 만으로는 호출이 막힌 것인지 자료가 없는 것인지 가릴 수가 없다.
+        why = body.get("RESULT") or next(iter(body.values()), {})
+        if isinstance(why, dict) and why.get("CODE"):
+            # 호출이 몰려 거부된 것일 수 있다. 한 번 쉬었다 다시 묻는다.
+            time.sleep(3)
+            body = json.loads(fetch.get(url))
+            rows = body.get("StatisticSearch", {}).get("row", [])
+            if not rows:
+                raise fetch.FetchError(
+                    f"ECOS {code}/{item}: {why.get('CODE')} "
+                    f"{why.get('MESSAGE', '')}".strip())
+        else:
+            raise fetch.FetchError(f"ECOS {code}/{item}: 빈 응답")
     vals = [(r["TIME"], float(r["DATA_VALUE"])) for r in rows
             if r.get("DATA_VALUE") not in (None, "", "-")]
     if not vals:
