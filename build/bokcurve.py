@@ -169,14 +169,33 @@ def fetch_odds(today: datetime.date | None = None,
     spread = (y91 - base) * 100 - PREMIUM_91        # bp, 프리미엄을 뺀다
     delta = spread * T91 / weight                   # 회의 한 번치
 
+    # 가정이 얼마나 영향을 주는지 띠로 적는다. 관측이 하나(91일)인데 회의가
+    # 둘이면 '총량'은 정해지지만 '어느 회의 몫'인지는 정해지지 않는다.
+    #
+    #   i 번째 회의가 가장 커지는 경우 — 그 앞 회의들이 하나도 안 움직이고
+    #     i 번째부터 움직인다:  c_i = S / (91 - t_i)
+    #   가장 작아지는 경우 — 앞에서 다 움직여 버린다. 마지막 회의가 아니면
+    #     0 까지 내려가고, 마지막 회의는 첫 회의에 다 몰린 값이 바닥이다.
+    #
+    # 이것을 적지 않으면 가운데 값 하나가 관측된 사실처럼 읽힌다.
+    span = spread * T91                               # bp × 일
+    t1 = (inside[0] - today).days
+    n = len(inside)
+
     meetings_out = []
     for i, day in enumerate(inside, start=1):
         bp = delta * i
+        t = (day - today).days
         if day > today + datetime.timedelta(days=days) or abs(bp) > CAP:
             continue
+        hi = span / (T91 - t)
+        lo = 0.0 if i < n else span / (T91 - t1)
         row = _odds(bp)
         row["date"] = day.isoformat()
         row["bp"] = round(bp, 1)
+        side = "hike" if bp >= 0 else "cut"
+        row["band"] = {"side": side,
+                       "lo": _odds(lo)[side], "hi": _odds(hi)[side]}
         meetings_out.append(row)
 
     if not meetings_out:

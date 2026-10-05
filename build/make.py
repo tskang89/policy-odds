@@ -94,6 +94,32 @@ def meeting_row(row: dict) -> str:
         f'</div>')
 
 
+SIDE_KO = {"hike": "인상", "cut": "인하"}
+
+
+def band_note(b: dict) -> str:
+    """역산한 칸에 '가정에 따라 이만큼 흔들린다'를 적는다.
+
+    가운데 값 하나만 보이면 관측된 사실처럼 읽힌다. 91일 금리 하나로는
+    총량만 정해지고 어느 회의 몫인지는 정해지지 않는다는 것을 숫자로
+    보여야 한다 — 말로만 '거칠다'고 적으면 얼마나 거친지 알 수 없다.
+    """
+    bands = [r for r in b["meetings"] if r.get("band")]
+    if not bands:
+        return ""
+    bits = []
+    for r in bands:
+        day = datetime.date.fromisoformat(r["date"])
+        bd = r["band"]
+        bits.append(f'{day.month}.{day.day} {SIDE_KO.get(bd["side"], "")} '
+                    f'{bd["lo"]:.0f}~{bd["hi"]:.0f}%')
+    return ('<div class="band">관측이 91일 금리 하나뿐이라 <b>어느 회의 몫인지는'
+            ' 가릴 수 없습니다</b> — 가능한 범위는 '
+            + esc(" · ".join(bits))
+            + '. 위 숫자는 회의마다 같은 크기로 움직인다고 본 가운데 값입니다.'
+              ' 정해지는 것은 <b>총량</b>입니다.</div>')
+
+
 def bank_block(b: dict) -> str:
     badge = ('<span class="badge calc">역산</span>' if b["derived"]
              else '<span class="badge">공개 수치</span>')
@@ -102,6 +128,7 @@ def bank_block(b: dict) -> str:
         bits = " · ".join(f"{nm} {v}" for nm, v, _ in b["inputs"])
         inputs = f'<div class="inputs">{esc(bits)}</div>'
     rows = "".join(meeting_row(r) for r in b["meetings"])
+    rows += band_note(b)
     return (
         f'<section class="bank">'
         f'<h2>{esc(b["bank"])}'
