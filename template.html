@@ -1,0 +1,139 @@
+<!doctype html><html lang="ko"><head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>정책금리 변경 확률</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --surface-2:#eef1f5;
+  --ink:#101a26; --ink-2:#465264; --muted:#768194;
+  --rule:#dce1e8; --rule-strong:#b9c1cc;
+  --accent:#163f8c; --accent-soft:#e3eaf7;
+  --cut:#2a6ca8; --cut-soft:#dbe9f6;
+  --hold:#8793a3; --hold-soft:#e8ebef;
+  --hike:#b4332f; --hike-soft:#fbe9e8;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --surface:#151c25; --surface-2:#1c2530;
+    --ink:#edf1f6; --ink-2:#b2bcc9; --muted:#8793a3;
+    --rule:#26303c; --rule-strong:#3a4656;
+    --accent:#8fb0ff; --accent-soft:#1d2a44;
+    --cut:#6ba9dd; --cut-soft:#1a2b3b;
+    --hold:#7d8795; --hold-soft:#222a34;
+    --hike:#ef7b76; --hike-soft:#3a2120;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --surface:#151c25; --surface-2:#1c2530;
+  --ink:#edf1f6; --ink-2:#b2bcc9; --muted:#8793a3;
+  --rule:#26303c; --rule-strong:#3a4656;
+  --accent:#8fb0ff; --accent-soft:#1d2a44;
+  --cut:#6ba9dd; --cut-soft:#1a2b3b;
+  --hold:#7d8795; --hold-soft:#222a34;
+  --hike:#ef7b76; --hike-soft:#3a2120;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.55;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 56px}
+header{padding:26px 0 14px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font-size:clamp(22px,5vw,28px);line-height:1.2;font-weight:700;margin:0 0 8px;letter-spacing:-.01em}
+.stamp{font-size:12.5px;color:var(--ink-2)}
+.stamp a.calLink{color:var(--accent);text-decoration:none;font-weight:600}
+.stamp a.calLink:hover{text-decoration:underline}
+
+/* 읽는 법. 이 페이지는 숫자가 오해되기 쉬워 맨 위에 둔다 — 회의 칸끼리
+   더하면 안 된다는 것을 모르면 '12월에 82% 인상'을 '그날 올린다'로 읽는다. */
+.howto{background:var(--accent-soft);border-left:4px solid var(--accent);
+  border-radius:10px;padding:12px 14px;margin:14px 0 4px;font-size:13px;
+  color:var(--ink)}
+.howto b{font-weight:600}
+.howto p{margin:0 0 6px}
+.howto p:last-child{margin:0}
+
+.warn{background:var(--hike-soft);border-left:4px solid var(--hike);
+  border-radius:10px;padding:11px 13px;margin:14px 0 0;font-size:12.5px}
+
+.bank{margin-top:22px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:12px;padding:14px 14px 6px}
+.bank h2{margin:0;font-size:15.5px;font-weight:700;display:flex;
+  align-items:baseline;gap:8px;flex-wrap:wrap}
+.bank h2 .lv{font-family:var(--mono);font-size:13px;font-weight:500;
+  color:var(--ink-2)}
+.src{margin:4px 0 10px;font-size:11.5px;color:var(--muted)}
+.src a{color:var(--muted)}
+.badge{display:inline-block;font-size:10.5px;font-weight:600;
+  padding:1px 6px;border-radius:999px;margin-right:6px;
+  background:var(--surface-2);color:var(--ink-2)}
+.badge.calc{background:var(--hike-soft);color:var(--hike)}
+
+.mtg{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:9px 0;border-top:1px solid var(--rule)}
+.mtg .d{font-family:var(--mono);font-size:13px;font-weight:600;
+  min-width:68px;flex-shrink:0}
+.mtg .bp{font-family:var(--mono);font-size:11.5px;color:var(--muted);
+  min-width:62px;text-align:right;flex-shrink:0}
+.bar{flex:1 1 180px;display:flex;height:22px;border-radius:6px;
+  overflow:hidden;background:var(--surface-2);min-width:160px}
+.bar span{display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;color:#fff;
+  overflow:hidden;white-space:nowrap}
+.bar .c{background:var(--cut)}
+.bar .h{background:var(--hold)}
+.bar .k{background:var(--hike)}
+.nums{flex:0 0 auto;font-family:var(--mono);font-size:11.5px;
+  color:var(--ink-2);display:flex;gap:8px}
+.nums .c{color:var(--cut)} .nums .k{color:var(--hike)}
+
+.legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted);
+  margin:16px 0 0;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;
+  margin-right:4px;vertical-align:-1px}
+.inputs{font-family:var(--mono);font-size:11px;color:var(--muted);
+  margin:2px 0 8px}
+
+.note{margin-top:30px;padding-top:16px;border-top:1px solid var(--rule-strong);
+  font-size:12px;color:var(--ink-2);line-height:1.65}
+.note b{color:var(--ink)}
+.note ul{margin:6px 0;padding-left:18px}
+@media (max-width:420px){
+  .nums{width:100%;justify-content:flex-start}
+  .mtg .bp{min-width:0}
+}
+</style></head><body><div class="wrap">
+<header>
+<p class="eyebrow">Bank of Korea Frankfurt</p>
+<h1>시장이 보는 정책금리 변경 확률</h1>
+<p class="stamp">__STAMP__<br>
+<a class="calLink" href="https://tskang89.github.io/econ-calendar/">향후 1개월 주요 일정 →</a><br>
+<a class="calLink" href="https://tskang89.github.io/euro-chartpack/">주요국 경제 차트팩 →</a></p>
+</header>
+
+<div class="howto">
+<p><b>세 숫자는 '오늘 수준과 견준' 것입니다.</b> 그 회의에서 새로 움직일
+확률이 아니라, <b>그 회의 시점에 정책금리가 오늘보다 낮을·같을·높을 확률</b>
+입니다. 12월 칸의 인상 확률에는 10월에 올릴 가능성이 이미 들어 있습니다.</p>
+<p><b>그래서 회의끼리 더하거나 비교하면 안 됩니다.</b> 같은 움직임을 두 번
+세게 됩니다. 뒤로 갈수록 인상·인하 확률이 커지는 것은 그만큼 쌓인 것입니다.</p>
+</div>
+__WARN__
+__BANKS__
+<div class="legend">
+<span><i style="background:var(--cut)"></i>인하</span>
+<span><i style="background:var(--hold)"></i>동결</span>
+<span><i style="background:var(--hike)"></i>인상</span>
+<span>bp = 오늘 대비 반영된 금리 변화폭</span>
+</div>
+
+<div class="note">__NOTE__</div>
+</div>
+<script id="ops" type="application/json">__OPS__</script>
+</body></html>

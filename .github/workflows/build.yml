@@ -1,0 +1,69 @@
+name: 확률 갱신
+
+on:
+  schedule:
+    # 평일 새벽. 조간 브리핑(현지 08:00)보다 앞서야 그날 링크가 최신이다.
+    # 05:25 UTC = 여름 07:25 / 겨울 06:25 현지. 일정표(05:20)보다 조금 뒤에
+    # 두어 둘이 같은 순간에 되커밋을 다투지 않게 한다.
+    #
+    # GitHub 예약은 몇 시간씩 밀리는 날이 있다. 이 쪽은 날마다 값이 바뀌므로
+    # 밀리면 그날 숫자가 묵는다 — 일정표와 달리 하루 늦으면 내용이 어긋난다.
+    # 그래서 cron-job.org 가 아래 workflow_dispatch 를 따로 찌른다.
+    - cron: "25 5 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      check_only:
+        description: "쓰지 않고 만들어만 본다"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: odds
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install --quiet -r requirements.txt
+
+      - name: 확률 수집
+        env:
+          ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+        run: python build/make.py ${{ inputs.check_only && '--check' || '' }}
+
+      - name: 되커밋
+        if: ${{ !inputs.check_only }}
+        run: |
+          git config user.name  "odds-bot"
+          git config user.email "odds-bot@users.noreply.github.com"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "확률에 변화가 없다 — 커밋 생략"
+            exit 0
+          fi
+          git commit -m "확률 갱신 $(TZ=Europe/Berlin date +%Y-%m-%d)"
+          for i in 1 2 3; do
+            if git push; then
+              echo "되커밋 완료 (시도 $i)"
+              exit 0
+            fi
+            echo "push 거부됨 — 원격을 받아 얹고 재시도 ($i/3)"
+            git pull --rebase --autostash origin main || exit 1
+            sleep 3
+          done
+          echo "::error::되커밋 실패"
+          exit 1

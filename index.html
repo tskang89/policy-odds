@@ -1,0 +1,168 @@
+<!doctype html><html lang="ko"><head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>정책금리 변경 확률</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --surface-2:#eef1f5;
+  --ink:#101a26; --ink-2:#465264; --muted:#768194;
+  --rule:#dce1e8; --rule-strong:#b9c1cc;
+  --accent:#163f8c; --accent-soft:#e3eaf7;
+  --cut:#2a6ca8; --cut-soft:#dbe9f6;
+  --hold:#8793a3; --hold-soft:#e8ebef;
+  --hike:#b4332f; --hike-soft:#fbe9e8;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131a; --surface:#151c25; --surface-2:#1c2530;
+    --ink:#edf1f6; --ink-2:#b2bcc9; --muted:#8793a3;
+    --rule:#26303c; --rule-strong:#3a4656;
+    --accent:#8fb0ff; --accent-soft:#1d2a44;
+    --cut:#6ba9dd; --cut-soft:#1a2b3b;
+    --hold:#7d8795; --hold-soft:#222a34;
+    --hike:#ef7b76; --hike-soft:#3a2120;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131a; --surface:#151c25; --surface-2:#1c2530;
+  --ink:#edf1f6; --ink-2:#b2bcc9; --muted:#8793a3;
+  --rule:#26303c; --rule-strong:#3a4656;
+  --accent:#8fb0ff; --accent-soft:#1d2a44;
+  --cut:#6ba9dd; --cut-soft:#1a2b3b;
+  --hold:#7d8795; --hold-soft:#222a34;
+  --hike:#ef7b76; --hike-soft:#3a2120;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.55;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 56px}
+header{padding:26px 0 14px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font-size:clamp(22px,5vw,28px);line-height:1.2;font-weight:700;margin:0 0 8px;letter-spacing:-.01em}
+.stamp{font-size:12.5px;color:var(--ink-2)}
+.stamp a.calLink{color:var(--accent);text-decoration:none;font-weight:600}
+.stamp a.calLink:hover{text-decoration:underline}
+
+/* 읽는 법. 이 페이지는 숫자가 오해되기 쉬워 맨 위에 둔다 — 회의 칸끼리
+   더하면 안 된다는 것을 모르면 '12월에 82% 인상'을 '그날 올린다'로 읽는다. */
+.howto{background:var(--accent-soft);border-left:4px solid var(--accent);
+  border-radius:10px;padding:12px 14px;margin:14px 0 4px;font-size:13px;
+  color:var(--ink)}
+.howto b{font-weight:600}
+.howto p{margin:0 0 6px}
+.howto p:last-child{margin:0}
+
+.warn{background:var(--hike-soft);border-left:4px solid var(--hike);
+  border-radius:10px;padding:11px 13px;margin:14px 0 0;font-size:12.5px}
+
+.bank{margin-top:22px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:12px;padding:14px 14px 6px}
+.bank h2{margin:0;font-size:15.5px;font-weight:700;display:flex;
+  align-items:baseline;gap:8px;flex-wrap:wrap}
+.bank h2 .lv{font-family:var(--mono);font-size:13px;font-weight:500;
+  color:var(--ink-2)}
+.src{margin:4px 0 10px;font-size:11.5px;color:var(--muted)}
+.src a{color:var(--muted)}
+.badge{display:inline-block;font-size:10.5px;font-weight:600;
+  padding:1px 6px;border-radius:999px;margin-right:6px;
+  background:var(--surface-2);color:var(--ink-2)}
+.badge.calc{background:var(--hike-soft);color:var(--hike)}
+
+.mtg{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:9px 0;border-top:1px solid var(--rule)}
+.mtg .d{font-family:var(--mono);font-size:13px;font-weight:600;
+  min-width:68px;flex-shrink:0}
+.mtg .bp{font-family:var(--mono);font-size:11.5px;color:var(--muted);
+  min-width:62px;text-align:right;flex-shrink:0}
+.bar{flex:1 1 180px;display:flex;height:22px;border-radius:6px;
+  overflow:hidden;background:var(--surface-2);min-width:160px}
+.bar span{display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;color:#fff;
+  overflow:hidden;white-space:nowrap}
+.bar .c{background:var(--cut)}
+.bar .h{background:var(--hold)}
+.bar .k{background:var(--hike)}
+.nums{flex:0 0 auto;font-family:var(--mono);font-size:11.5px;
+  color:var(--ink-2);display:flex;gap:8px}
+.nums .c{color:var(--cut)} .nums .k{color:var(--hike)}
+
+.legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted);
+  margin:16px 0 0;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;
+  margin-right:4px;vertical-align:-1px}
+.inputs{font-family:var(--mono);font-size:11px;color:var(--muted);
+  margin:2px 0 8px}
+
+.note{margin-top:30px;padding-top:16px;border-top:1px solid var(--rule-strong);
+  font-size:12px;color:var(--ink-2);line-height:1.65}
+.note b{color:var(--ink)}
+.note ul{margin:6px 0;padding-left:18px}
+@media (max-width:420px){
+  .nums{width:100%;justify-content:flex-start}
+  .mtg .bp{min-width:0}
+}
+</style></head><body><div class="wrap">
+<header>
+<p class="eyebrow">Bank of Korea Frankfurt</p>
+<h1>시장이 보는 정책금리 변경 확률</h1>
+<p class="stamp">2026년 10월 5일 (월) 기준<br>
+<a class="calLink" href="https://tskang89.github.io/econ-calendar/">향후 1개월 주요 일정 →</a><br>
+<a class="calLink" href="https://tskang89.github.io/euro-chartpack/">주요국 경제 차트팩 →</a></p>
+</header>
+
+<div class="howto">
+<p><b>세 숫자는 '오늘 수준과 견준' 것입니다.</b> 그 회의에서 새로 움직일
+확률이 아니라, <b>그 회의 시점에 정책금리가 오늘보다 낮을·같을·높을 확률</b>
+입니다. 12월 칸의 인상 확률에는 10월에 올릴 가능성이 이미 들어 있습니다.</p>
+<p><b>그래서 회의끼리 더하거나 비교하면 안 됩니다.</b> 같은 움직임을 두 번
+세게 됩니다. 뒤로 갈수록 인상·인하 확률이 커지는 것은 그만큼 쌓인 것입니다.</p>
+</div>
+
+<section class="bank"><h2>미국 연준<span class="lv">연방기금 목표범위 3.75~4.00%</span></h2><div class="src"><span class="badge">공개 수치</span><a href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener">CME 페드워치</a></div><div class="mtg"><span class="d">10.28<span style="font-weight:400;color:var(--muted)">(수)</span></span><div class="bar"><span class="h" style="width:79.5000%">80</span><span class="k" style="width:20.5000%">20</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 79.5</span><span class="k">인상 20.5</span></span><span class="bp"></span></div><div class="mtg"><span class="d">12.9<span style="font-weight:400;color:var(--muted)">(수)</span></span><div class="bar"><span class="h" style="width:16.7000%">17</span><span class="k" style="width:83.3000%">83</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 16.7</span><span class="k">인상 83.3</span></span><span class="bp"></span></div></section>
+<section class="bank"><h2>ECB<span class="lv">예금금리 2.50%</span></h2><div class="src"><span class="badge">공개 수치</span><a href="https://centralbank.watch/european-central-bank/" target="_blank" rel="noopener">Central Bank Watch</a></div><div class="mtg"><span class="d">10.29<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:91.9000%">92</span><span class="k" style="width:8.1000%"></span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 91.9</span><span class="k">인상 8.1</span></span><span class="bp">+2bp</span></div><div class="mtg"><span class="d">12.17<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:17.8000%">18</span><span class="k" style="width:82.2000%">82</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 17.8</span><span class="k">인상 82.2</span></span><span class="bp">+22bp</span></div></section>
+<section class="bank"><h2>일본은행<span class="lv">정책금리(무담보 콜 1일) 1.25%</span></h2><div class="src"><span class="badge">공개 수치</span><a href="https://centralbank.watch/bank-of-japan/" target="_blank" rel="noopener">Central Bank Watch</a></div><div class="mtg"><span class="d">10.28<span style="font-weight:400;color:var(--muted)">(수)</span></span><div class="bar"><span class="c" style="width:1.2000%"></span><span class="h" style="width:98.8000%">99</span></div><span class="nums"><span class="c">인하 1.2</span><span>동결 98.8</span><span class="k">인상 0.0</span></span><span class="bp">-0bp</span></div><div class="mtg"><span class="d">12.17<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="c" style="width:0.4000%"></span><span class="h" style="width:30.8000%">31</span><span class="k" style="width:68.8000%">69</span></div><span class="nums"><span class="c">인하 0.4</span><span>동결 30.8</span><span class="k">인상 68.8</span></span><span class="bp">+17bp</span></div></section>
+<section class="bank"><h2>한국은행<span class="lv">기준금리 3.00%</span></h2><div class="src"><span class="badge calc">역산</span><a href="https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?mtgSe=A&amp;menuNo=200755" target="_blank" rel="noopener">한국은행 ECOS 단기금리에서 역산</a></div><div class="inputs">기준금리 3.00% · 통안증권 91일 3.159% · 통안증권 1년 3.576%</div><div class="mtg"><span class="d">10.22<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:21.8000%">22</span><span class="k" style="width:78.2000%">78</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 21.8</span><span class="k">인상 78.2</span></span><span class="bp">+20bp</span></div><div class="mtg"><span class="d">11.26<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="k" style="width:100.0000%">100</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 0.0</span><span class="k">인상 100.0</span></span><span class="bp">+65bp</span></div></section>
+<div class="legend">
+<span><i style="background:var(--cut)"></i>인하</span>
+<span><i style="background:var(--hold)"></i>동결</span>
+<span><i style="background:var(--hike)"></i>인상</span>
+<span>bp = 오늘 대비 반영된 금리 변화폭</span>
+</div>
+
+<div class="note"><b>무엇을 보여 주나</b> 각 통화정책회의 시점에 정책금리가 오늘보다
+낮을(인하)·같을(동결)·높을(인상) 확률입니다. 셋을 더하면 100 입니다.
+앞으로 약 석 달 안의 회의만 싣습니다.
+<br><br>
+<b>출처가 넷으로 갈립니다. 격이 다릅니다.</b>
+<ul>
+<li><b>연준</b> — CME 페드워치. 연방기금 선물로 CME 가 계산해 공개한 것을
+그대로 옮깁니다. 제가 계산하지 않습니다.</li>
+<li><b>ECB·일본은행</b> — Central Bank Watch. €STR·OIS 선물로 계산해 날마다
+공개합니다. CME 의 €STRWatch 는 유료로 막혀 있어 이쪽을 씁니다.
+<b>중앙은행도 거래소도 아닌 제3자 모델</b>이라는 점을 감안해 주십시오.</li>
+<li><b>한국은행</b> — 공신력 있는 공개 확률 지표가 없어 <b>직접 역산</b>
+합니다. 한국은행 ECOS 의 기준금리·통안증권 91일·1년 금리를 씁니다.</li>
+</ul>
+<b>한국은행 역산 셈법</b> 만기 T 일 금리를 그 사이 하루짜리 금리의 평균으로
+보고, 금리가 회의 때마다 25bp 계단으로 움직인다고 가정해 회의 시점의 반영
+변화폭을 풉니다. 그 변화폭을 25bp 한 칸으로 나누어 확률로 바꿉니다 —
+반영분이 +7.5bp 면 인상 30 · 동결 70 입니다.
+<br><br>
+<b>한국은행 숫자의 한계</b> 통안증권에는 기간 프리미엄이 조금 섞여 있어
+인상 쪽으로 치우칩니다. 둘째 회의는 '그 뒤로는 더 움직이지 않는다'고 가정한
+값이라 더 거칩니다. 그래서 반영 변화폭(bp)을 함께 적었습니다 — 확률만 보면
+실제보다 정밀해 보입니다.
+<br><br>
+<b>블룸버그 WIRP 를 쓰지 않는 까닭</b> 공신력은 높지만 날마다 손으로 받아야
+해 자동 갱신에 맞지 않습니다. 예측시장(폴리마켓 등)도 쓰지 않습니다 —
+선물 기반만큼 공신력이 없습니다.</div>
+</div>
+<script id="ops" type="application/json">{"built": "2026-10-05T09:19Z", "asOf": "2026-10-05", "banks": ["US", "EA", "JP", "KR"], "warn": [], "rows": [{"code": "US", "d": "2026-10-28", "cut": 0.0, "hold": 79.5, "hike": 20.5, "bp": null}, {"code": "US", "d": "2026-12-09", "cut": 0.0, "hold": 16.7, "hike": 83.3, "bp": null}, {"code": "EA", "d": "2026-10-29", "cut": 0.0, "hold": 91.9, "hike": 8.1, "bp": 2.0}, {"code": "EA", "d": "2026-12-17", "cut": 0.0, "hold": 17.8, "hike": 82.2, "bp": 22.2}, {"code": "JP", "d": "2026-10-28", "cut": 1.2, "hold": 98.8, "hike": 0.0, "bp": -0.3}, {"code": "JP", "d": "2026-12-17", "cut": 0.4, "hold": 30.8, "hike": 68.8, "bp": 17.1}, {"code": "KR", "d": "2026-10-22", "cut": 0.0, "hold": 21.8, "hike": 78.2, "bp": 19.6}, {"code": "KR", "d": "2026-11-26", "cut": 0.0, "hold": 0.0, "hike": 100.0, "bp": 65.0}]}</script>
+</body></html>
