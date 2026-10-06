@@ -73,7 +73,6 @@ h1{font-size:clamp(22px,5vw,28px);line-height:1.2;font-weight:700;margin:0 0 8px
 .badge{display:inline-block;font-size:10.5px;font-weight:600;
   padding:1px 6px;border-radius:999px;margin-right:6px;
   background:var(--surface-2);color:var(--ink-2)}
-.badge.calc{background:var(--hike-soft);color:var(--hike)}
 
 .mtg{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
   padding:9px 0;border-top:1px solid var(--rule)}
@@ -97,15 +96,6 @@ h1{font-size:clamp(22px,5vw,28px);line-height:1.2;font-weight:700;margin:0 0 8px
   margin:16px 0 0;flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;
   margin-right:4px;vertical-align:-1px}
-.inputs{font-family:var(--mono);font-size:11px;color:var(--muted);
-  margin:2px 0 8px}
-/* 역산한 칸에만 붙는 띠. 가운데 값 하나가 관측된 사실처럼 읽히지 않게
-   한다. 표 아래에 두되 각주만큼 묻히지는 않아야 해서 색을 준다. */
-.band{margin:8px -2px 10px;padding:9px 11px;border-radius:8px;
-  background:var(--hike-soft);border-left:3px solid var(--hike);
-  font-size:11.5px;line-height:1.55;color:var(--ink-2)}
-.band b{color:var(--ink);font-weight:600}
-
 .note{margin-top:30px;padding-top:16px;border-top:1px solid var(--rule-strong);
   font-size:12px;color:var(--ink-2);line-height:1.65}
 .note b{color:var(--ink)}
@@ -132,7 +122,6 @@ h1{font-size:clamp(22px,5vw,28px);line-height:1.2;font-weight:700;margin:0 0 8px
 <section class="bank"><h2>미국 연준<span class="lv">연방기금 목표범위 3.75~4.00%</span></h2><div class="src"><span class="badge">공개 수치</span><a href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener">CME 페드워치</a></div><div class="mtg"><span class="d">10.28<span style="font-weight:400;color:var(--muted)">(수)</span></span><div class="bar"><span class="h" style="width:78.4000%">78</span><span class="k" style="width:21.6000%">22</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 78.4</span><span class="k">인상 21.6</span></span><span class="bp"></span></div><div class="mtg"><span class="d">12.9<span style="font-weight:400;color:var(--muted)">(수)</span></span><div class="bar"><span class="h" style="width:13.8000%">14</span><span class="k" style="width:86.2000%">86</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 13.8</span><span class="k">인상 86.2</span></span><span class="bp"></span></div></section>
 <section class="bank"><h2>ECB<span class="lv">예금금리 2.50%</span></h2><div class="src"><span class="badge">공개 수치</span><a href="https://centralbank.watch/european-central-bank/" target="_blank" rel="noopener">Central Bank Watch</a></div><div class="mtg"><span class="d">10.29<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:92.8000%">93</span><span class="k" style="width:7.2000%"></span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 92.8</span><span class="k">인상 7.2</span></span><span class="bp">+2bp</span></div><div class="mtg"><span class="d">12.17<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:16.2000%">16</span><span class="k" style="width:83.8000%">84</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 16.2</span><span class="k">인상 83.8</span></span><span class="bp">+22bp</span></div></section>
 <section class="bank"><h2>일본은행<span class="lv">정책금리(무담보 콜 1일) 1.25%</span></h2><div class="src"><span class="badge">공개 수치</span><a href="https://centralbank.watch/bank-of-japan/" target="_blank" rel="noopener">Central Bank Watch</a></div><div class="mtg"><span class="d">10.28<span style="font-weight:400;color:var(--muted)">(수)</span></span><div class="bar"><span class="c" style="width:4.9000%"></span><span class="h" style="width:95.1000%">95</span></div><span class="nums"><span class="c">인하 4.9</span><span>동결 95.1</span><span class="k">인상 0.0</span></span><span class="bp">-1bp</span></div><div class="mtg"><span class="d">12.17<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="c" style="width:1.6000%"></span><span class="h" style="width:33.8000%">34</span><span class="k" style="width:64.6000%">65</span></div><span class="nums"><span class="c">인하 1.6</span><span>동결 33.8</span><span class="k">인상 64.6</span></span><span class="bp">+16bp</span></div></section>
-<section class="bank"><h2>한국은행<span class="lv">기준금리 3.00%</span></h2><div class="src"><span class="badge calc">역산</span><a href="https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?mtgSe=A&amp;menuNo=200755" target="_blank" rel="noopener">한국은행 ECOS 단기금리에서 역산</a></div><div class="inputs">기준금리 3.00% · 통안증권 91일 3.159% · 통안증권 1년(참고) 3.574%</div><div class="mtg"><span class="d">10.22<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:57.6000%">58</span><span class="k" style="width:42.4000%">42</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 57.6</span><span class="k">인상 42.4</span></span><span class="bp">+11bp</span></div><div class="mtg"><span class="d">11.26<span style="font-weight:400;color:var(--muted)">(목)</span></span><div class="bar"><span class="h" style="width:15.2000%">15</span><span class="k" style="width:84.8000%">85</span></div><span class="nums"><span class="c">인하 0.0</span><span>동결 15.2</span><span class="k">인상 84.8</span></span><span class="bp">+21bp</span></div><div class="band">관측이 91일 금리 하나뿐이라 <b>어느 회의 몫인지는 가릴 수 없습니다</b> — 가능한 범위는 10.22 인상 0~65% · 11.26 인상 65~100%. 위 숫자는 회의마다 같은 크기로 움직인다고 본 가운데 값입니다. 정해지는 것은 <b>총량</b>입니다.</div></section>
 <div class="legend">
 <span><i style="background:var(--cut)"></i>인하</span>
 <span><i style="background:var(--hold)"></i>동결</span>
@@ -144,34 +133,23 @@ h1{font-size:clamp(22px,5vw,28px);line-height:1.2;font-weight:700;margin:0 0 8px
 낮을(인하)·같을(동결)·높을(인상) 확률입니다. 셋을 더하면 100 입니다.
 앞으로 약 석 달 안의 회의만 싣습니다.
 <br><br>
-<b>출처가 넷으로 갈립니다. 격이 다릅니다.</b>
+<b>세 곳 다 남이 계산해 공개한 수치입니다.</b> 이 쪽에서 제가 계산한 숫자는
+없습니다. 다만 격이 같지는 않습니다.
 <ul>
-<li><b>연준</b> — CME 페드워치. 연방기금 선물로 CME 가 계산해 공개한 것을
-그대로 옮깁니다. 제가 계산하지 않습니다.</li>
+<li><b>연준</b> — CME 페드워치. 연방기금 선물로 <b>거래소가</b> 계산해
+공개한 것을 그대로 옮깁니다.</li>
 <li><b>ECB·일본은행</b> — Central Bank Watch. €STR·OIS 선물로 계산해 날마다
 공개합니다. CME 의 €STRWatch 는 유료로 막혀 있어 이쪽을 씁니다.
 <b>중앙은행도 거래소도 아닌 제3자 모델</b>이라는 점을 감안해 주십시오.</li>
-<li><b>한국은행</b> — 공신력 있는 공개 확률 지표가 없어 <b>직접 역산</b>
-합니다. 한국은행 ECOS 의 기준금리·통안증권 91일·1년 금리를 씁니다.</li>
 </ul>
-<b>한국은행 역산 셈법</b> 통안증권 91일 금리를 그 사이 하루짜리 금리의
-평균으로 보고, 그 안에 든 <b>모든</b> 금통위에서 같은 크기씩 움직인다고
-가정해 회의마다의 누적 변화폭을 풉니다. 그 변화폭을 25bp 한 칸으로 선형으로
-나누어 확률로 바꿉니다 — 반영분이 +7.5bp 면 인상 30 · 동결 70 입니다.
-통안증권 91일은 기준금리보다 평소 <b>+2.5bp</b> 높아(2013~2026년 3,388
-영업일 중앙값) 그만큼 빼고 셉니다.
-<br><br>
-<b>한국은행 숫자의 한계</b> 관측이 하나(91일 금리)뿐이라 <b>첫 회의에
-움직일지 둘째 회의에 움직일지는 가릴 수 없습니다.</b> 회의마다 같은 크기로
-움직인다고 본 것은 어느 쪽으로도 기울지 않으려는 가정이지 시장이 그렇게
-본다는 뜻이 아닙니다. 91일 바깥의 회의는 싣지 않습니다 — 91일 금리가 그
-너머를 말해 주지 않습니다. 1년 금리는 커브가 어디까지 올라가 있는지
-보여 주려고 적어 둔 것이고 셈에는 쓰지 않습니다. 그래서 반영 변화폭(bp)을
-함께 적었습니다 — 확률만 보면 실제보다 정밀해 보입니다.
+<b>한국은행은 싣지 않습니다.</b> 공신력 있는 공개 확률 지표가 없습니다.
+통안증권 91일 금리에서 역산해 한동안 실었으나, 관측 하나로 회의 여럿을
+푸는 것이라 <b>어느 회의 몫인지를 가릴 수 없고</b> 위 셋과 격이 달랐습니다.
+같은 표에 나란히 두면 같은 무게로 읽히므로 뺐습니다(2026년 10월).
 <br><br>
 <b>블룸버그 WIRP 를 쓰지 않는 까닭</b> 공신력은 높지만 날마다 손으로 받아야
 해 자동 갱신에 맞지 않습니다. 예측시장(폴리마켓 등)도 쓰지 않습니다 —
 선물 기반만큼 공신력이 없습니다.</div>
 </div>
-<script id="ops" type="application/json">{"built": "2026-10-06T07:54Z", "asOf": "2026-10-06", "banks": ["US", "EA", "JP", "KR"], "warn": [], "rows": [{"code": "US", "d": "2026-10-28", "cut": 0.0, "hold": 78.4, "hike": 21.6, "bp": null}, {"code": "US", "d": "2026-12-09", "cut": 0.0, "hold": 13.8, "hike": 86.2, "bp": null}, {"code": "EA", "d": "2026-10-29", "cut": 0.0, "hold": 92.8, "hike": 7.2, "bp": 1.8}, {"code": "EA", "d": "2026-12-17", "cut": 0.0, "hold": 16.2, "hike": 83.8, "bp": 22.4}, {"code": "JP", "d": "2026-10-28", "cut": 4.9, "hold": 95.1, "hike": 0.0, "bp": -1.2}, {"code": "JP", "d": "2026-12-17", "cut": 1.6, "hold": 33.8, "hike": 64.6, "bp": 15.7}, {"code": "KR", "d": "2026-10-22", "cut": 0.0, "hold": 57.6, "hike": 42.4, "bp": 10.6}, {"code": "KR", "d": "2026-11-26", "cut": 0.0, "hold": 15.2, "hike": 84.8, "bp": 21.2}]}</script>
+<script id="ops" type="application/json">{"built": "2026-10-06T09:21Z", "asOf": "2026-10-06", "banks": ["US", "EA", "JP"], "warn": [], "rows": [{"code": "US", "d": "2026-10-28", "cut": 0.0, "hold": 78.4, "hike": 21.6, "bp": null}, {"code": "US", "d": "2026-12-09", "cut": 0.0, "hold": 13.8, "hike": 86.2, "bp": null}, {"code": "EA", "d": "2026-10-29", "cut": 0.0, "hold": 92.8, "hike": 7.2, "bp": 1.8}, {"code": "EA", "d": "2026-12-17", "cut": 0.0, "hold": 16.2, "hike": 83.8, "bp": 22.4}, {"code": "JP", "d": "2026-10-28", "cut": 4.9, "hold": 95.1, "hike": 0.0, "bp": -1.2}, {"code": "JP", "d": "2026-12-17", "cut": 1.6, "hold": 33.8, "hike": 64.6, "bp": 15.7}]}</script>
 </body></html>

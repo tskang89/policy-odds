@@ -4,10 +4,13 @@
 조간 브리핑 맨 아래 '참고자료'에 걸리는 세 번째 쪽이다(차트팩·일정표 다음).
 날마다 새로 만든다.
 
-네 곳의 격이 다르다. 연준은 CME 가 연방기금 선물로 계산해 공개한 것,
-ECB·일본은행은 제3자가 €STR·OIS 선물로 계산해 공개한 것, 한국은행은 내가
-단기금리에서 역산한 것이다. 그래서 각 칸에 출처를 붙이고 역산한 것에는
-딴 표시를 둔다 — 넷을 같은 꼴로 늘어놓으면 같은 격으로 읽힌다.
+세 곳 다 **남이 계산해 공개한 수치**다. 연준은 CME 가 연방기금 선물로,
+ECB·일본은행은 제3자가 €STR·OIS 선물로 낸다. 격이 같지는 않으므로 칸마다
+출처를 붙인다 — 거래소와 제3자 모델은 다르다.
+
+한국은행은 2026-10-06 에 뺐다(소장님 지시). 공개 확률 지표가 없어 통안증권
+91일 금리에서 역산했는데, 관측 하나로 회의 여럿을 푸는 것이라 다른 셋과
+격이 달랐다. 셈법은 git 이력의 `build/bokcurve.py` 에 남아 있다.
 
 한 곳이 실패하면 그 칸만 빠지고 나머지는 올라간다. 빠진 것은 화면에 적는다.
 """
@@ -23,7 +26,6 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 
-import bokcurve                                               # noqa: E402
 import cbwatch                                                # noqa: E402
 import fedwatch                                               # noqa: E402
 import fetch                                                  # noqa: E402
@@ -49,7 +51,6 @@ def collect(today: datetime.date) -> tuple[list[dict], list[str]]:
         ("연준", lambda: fedwatch.fetch_odds(today, WINDOW)),
         ("ECB", lambda: cbwatch.fetch_odds("EA", today, WINDOW)),
         ("일본은행", lambda: cbwatch.fetch_odds("JP", today, WINDOW)),
-        ("한국은행", lambda: bokcurve.fetch_odds(today, WINDOW)),
     )
     out, warn = [], []
     for name, fn in jobs:
@@ -94,79 +95,41 @@ def meeting_row(row: dict) -> str:
         f'</div>')
 
 
-SIDE_KO = {"hike": "인상", "cut": "인하"}
-
-
-def band_note(b: dict) -> str:
-    """역산한 칸에 '가정에 따라 이만큼 흔들린다'를 적는다.
-
-    가운데 값 하나만 보이면 관측된 사실처럼 읽힌다. 91일 금리 하나로는
-    총량만 정해지고 어느 회의 몫인지는 정해지지 않는다는 것을 숫자로
-    보여야 한다 — 말로만 '거칠다'고 적으면 얼마나 거친지 알 수 없다.
-    """
-    bands = [r for r in b["meetings"] if r.get("band")]
-    if not bands:
-        return ""
-    bits = []
-    for r in bands:
-        day = datetime.date.fromisoformat(r["date"])
-        bd = r["band"]
-        bits.append(f'{day.month}.{day.day} {SIDE_KO.get(bd["side"], "")} '
-                    f'{bd["lo"]:.0f}~{bd["hi"]:.0f}%')
-    return ('<div class="band">관측이 91일 금리 하나뿐이라 <b>어느 회의 몫인지는'
-            ' 가릴 수 없습니다</b> — 가능한 범위는 '
-            + esc(" · ".join(bits))
-            + '. 위 숫자는 회의마다 같은 크기로 움직인다고 본 가운데 값입니다.'
-              ' 정해지는 것은 <b>총량</b>입니다.</div>')
-
-
 def bank_block(b: dict) -> str:
-    badge = ('<span class="badge calc">역산</span>' if b["derived"]
-             else '<span class="badge">공개 수치</span>')
-    inputs = ""
-    if b.get("inputs"):
-        bits = " · ".join(f"{nm} {v}" for nm, v, _ in b["inputs"])
-        inputs = f'<div class="inputs">{esc(bits)}</div>'
+    """한 중앙은행 묶음. '공개 수치' 띠를 셋 다 달고 간다.
+
+    이 쪽에 내가 계산한 숫자는 없다는 뜻이다. 한국은행을 뺀 뒤로는 셋이
+    모두 같은 띠라 군더더기처럼 보이지만, 남겨 둔다 — 읽는 사람이 '이것도
+    누가 셈한 건가' 를 묻지 않게 하는 것이 이 쪽의 요체다.
+    """
     rows = "".join(meeting_row(r) for r in b["meetings"])
-    rows += band_note(b)
     return (
         f'<section class="bank">'
         f'<h2>{esc(b["bank"])}'
         f'<span class="lv">{esc(b["rate"])} {esc(b["level"] or "?")}</span></h2>'
-        f'<div class="src">{badge}'
+        f'<div class="src"><span class="badge">공개 수치</span>'
         f'<a href="{esc(b["url"])}" target="_blank" rel="noopener">'
         f'{esc(b["source"])}</a></div>'
-        f'{inputs}{rows}</section>')
+        f'{rows}</section>')
 
 
 NOTE = """<b>무엇을 보여 주나</b> 각 통화정책회의 시점에 정책금리가 오늘보다
 낮을(인하)·같을(동결)·높을(인상) 확률입니다. 셋을 더하면 100 입니다.
 앞으로 약 석 달 안의 회의만 싣습니다.
 <br><br>
-<b>출처가 넷으로 갈립니다. 격이 다릅니다.</b>
+<b>세 곳 다 남이 계산해 공개한 수치입니다.</b> 이 쪽에서 제가 계산한 숫자는
+없습니다. 다만 격이 같지는 않습니다.
 <ul>
-<li><b>연준</b> — CME 페드워치. 연방기금 선물로 CME 가 계산해 공개한 것을
-그대로 옮깁니다. 제가 계산하지 않습니다.</li>
+<li><b>연준</b> — CME 페드워치. 연방기금 선물로 <b>거래소가</b> 계산해
+공개한 것을 그대로 옮깁니다.</li>
 <li><b>ECB·일본은행</b> — Central Bank Watch. €STR·OIS 선물로 계산해 날마다
 공개합니다. CME 의 €STRWatch 는 유료로 막혀 있어 이쪽을 씁니다.
 <b>중앙은행도 거래소도 아닌 제3자 모델</b>이라는 점을 감안해 주십시오.</li>
-<li><b>한국은행</b> — 공신력 있는 공개 확률 지표가 없어 <b>직접 역산</b>
-합니다. 한국은행 ECOS 의 기준금리·통안증권 91일·1년 금리를 씁니다.</li>
 </ul>
-<b>한국은행 역산 셈법</b> 통안증권 91일 금리를 그 사이 하루짜리 금리의
-평균으로 보고, 그 안에 든 <b>모든</b> 금통위에서 같은 크기씩 움직인다고
-가정해 회의마다의 누적 변화폭을 풉니다. 그 변화폭을 25bp 한 칸으로 선형으로
-나누어 확률로 바꿉니다 — 반영분이 +7.5bp 면 인상 30 · 동결 70 입니다.
-통안증권 91일은 기준금리보다 평소 <b>+2.5bp</b> 높아(2013~2026년 3,388
-영업일 중앙값) 그만큼 빼고 셉니다.
-<br><br>
-<b>한국은행 숫자의 한계</b> 관측이 하나(91일 금리)뿐이라 <b>첫 회의에
-움직일지 둘째 회의에 움직일지는 가릴 수 없습니다.</b> 회의마다 같은 크기로
-움직인다고 본 것은 어느 쪽으로도 기울지 않으려는 가정이지 시장이 그렇게
-본다는 뜻이 아닙니다. 91일 바깥의 회의는 싣지 않습니다 — 91일 금리가 그
-너머를 말해 주지 않습니다. 1년 금리는 커브가 어디까지 올라가 있는지
-보여 주려고 적어 둔 것이고 셈에는 쓰지 않습니다. 그래서 반영 변화폭(bp)을
-함께 적었습니다 — 확률만 보면 실제보다 정밀해 보입니다.
+<b>한국은행은 싣지 않습니다.</b> 공신력 있는 공개 확률 지표가 없습니다.
+통안증권 91일 금리에서 역산해 한동안 실었으나, 관측 하나로 회의 여럿을
+푸는 것이라 <b>어느 회의 몫인지를 가릴 수 없고</b> 위 셋과 격이 달랐습니다.
+같은 표에 나란히 두면 같은 무게로 읽히므로 뺐습니다(2026년 10월).
 <br><br>
 <b>블룸버그 WIRP 를 쓰지 않는 까닭</b> 공신력은 높지만 날마다 손으로 받아야
 해 자동 갱신에 맞지 않습니다. 예측시장(폴리마켓 등)도 쓰지 않습니다 —
@@ -190,7 +153,7 @@ def build(today: datetime.date) -> str:
     log(f"확률 수집 — {today} 기준, 앞으로 {WINDOW}일")
     banks, warn = collect(today)
     if not banks:
-        raise fetch.FetchError("네 곳 모두 받지 못했다 — 쪽을 쓰지 않는다")
+        raise fetch.FetchError("세 곳 모두 받지 못했다 — 쪽을 쓰지 않는다")
 
     stamp = (f'{today.year}년 {today.month}월 {today.day}일 '
              f'({WEEKDAY[today.weekday()]}) 기준')
